@@ -9,4 +9,7 @@ R language was used in this project.
 
 The report is shown in both RMD and HTML documents.
 
-![Sample Plot](https://github.com/yanglinjing/stroop_effect_analysis/blob/master/stroop-test-2.jpg?raw=true 'Stroop Effect')
+Examples of EDA
+![Sample Plot](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic.png?raw=true)
+
+![Sample Plot](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic2.png?raw=true)
