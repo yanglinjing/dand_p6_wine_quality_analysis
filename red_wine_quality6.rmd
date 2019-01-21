@@ -1,5 +1,5 @@
 # Red Wine Quality Analysis
-# Which chemical properties influence the quality of red wines?
+### Which chemical properties influence the quality of red wines?
 
 By Linjing Yang
 
@@ -96,6 +96,77 @@ my_alpha <- 0.7
 ```
 
 ```{r}
+# Plot arguments of all chemicals
+
+# Step 1: Add plot arguments to a list for each varialbe
+
+# variable <- list(data, name, start, end, step)
+alcohol <- list(df$alcohol, 'Alcohol', 8, 15, 1) 
+
+citric.acid <- list(df$citric.acid, 
+                    'Citric Acid', 
+                    0, 1, 0.1)
+
+chlorides <- list(df$chlorides, 
+                  'Chlorides', 
+                  0, 0.2, 0.02) 
+
+density <- list(df$density, 
+                'Density', 
+                0.99, 1, 0.01) 
+
+fixed.acidity <- list(df$fixed.acidity, 
+                      'Fixed Acidity', 
+                      4, 16, 1) 
+
+free.sulfur.dioxide <- list(df$free.sulfur.dioxide, 
+                            'Free Sulfur Dioxide', 
+                            1, 72, 10) 
+
+pH <- list(df$pH, 'pH Value', 2.7, 4.1, 0.5) 
+
+residual.sugar <- list(df$residual.sugar, 
+                       'Residual Sugar', 
+                       0, 5, 0.5) 
+
+sulphates <- list(df$sulphates, 
+                  'Sulphates', 
+                  0.3, 1.3, 0.2) 
+
+volatile.acidity <- list(df$volatile.acidity, 
+                         'Volatile Acidity', 
+                         0, 1.2, 0.2) 
+
+total.sulfur.dioxide <- list(df$total.sulfur.dioxide, 
+                             'Total Sulfur Dioxide', 
+                             6, 160, 50) 
+
+
+
+# List:
+#   Index of lists starts from [1] rather than [0]
+#   Access the element of a list: list[[index]]
+
+```
+
+```{r}
+# Step 2: Add the variable lists above to a nested list
+chemicals <-  list(
+                alcohol,
+                citric.acid,
+                density,
+                chlorides,
+                fixed.acidity, 
+                free.sulfur.dioxide, 
+                pH,
+                residual.sugar,
+                sulphates,
+                volatile.acidity,
+                total.sulfur.dioxide
+                  )
+```
+
+```{r}
 # Function: Density plot
 
 create_density <- function(chemical, chemical_name, start, end, step){
@@ -136,46 +207,36 @@ create_4_plots_table <- function(chemical, chemical_name, start, end, step){
 ```
 
 ```{r}
-# Plot arguments of all chemicals
+# Scatter Plot with Lines
 
-# Step 1: Add plot arguments to a list for each varialbe
+# Step 1: Lines
+line_mean <- geom_line(stat='summary', fun.y=mean, 
+                       linetype=1, color='red')
 
-# variable <- list(data, name, start, end, step)
-alcohol <- list(df$alcohol, 'Alcohol', 8, 15, 1) 
-citric.acid <- list(df$citric.acid, 'Citric Acid', 0, 1, 0.1)
-density <- list(df$density, 'Density', 0.9901, 1.0037, 0.01) 
-chlorides <- list(df$chlorides, 'Chlorides', 0, 0.2, 0.02) 
-fixed.acidity <- list(df$fixed.acidity, 'Fixed Acidity', 4, 16, 1) 
-free.sulfur.dioxide <- list(df$free.sulfur.dioxide, 'Free Sulfur Dioxide', 1, 72, 10) 
-pH <- list(df$pH, 'pH Value', 2.7, 4.1, 0.5) 
-residual.sugar <- list(df$residual.sugar, 'Residual Sugar', 0, 5, 0.5) 
-sulphates <- list(df$sulphates, 'Sulphates', 0.3, 1.3, 0.2) 
-volatile.acidity <- list(df$volatile.acidity, 'Volatile Acidity', 0, 1.2, 0.2) 
-total.sulfur.dioxide <- list(df$total.sulfur.dioxide, 'Total Sulfur Dioxide', 6, 160, 50) 
-
-
-
-# List:
-#   Index of lists starts from [1] rather than [0]
-#   Access the element of a list: list[[index]]
+line_median <- geom_line(stat='summary', fun.y=quantile,
+                         fun.args=list(probs=.5),
+                         linetype=1, color=my_color)
 
 ```
 
 ```{r}
-# Step 2: Add the variable lists above to a nested list
-chemicals <-  list(
-                alcohol,
-                citric.acid,
-                density,
-                chlorides,
-                fixed.acidity, 
-                free.sulfur.dioxide, 
-                pH,
-                residual.sugar,
-                sulphates,
-                volatile.acidity,
-                total.sulfur.dioxide
-                  )
+# Scatter Plot with Lines
+
+# Step 2: Draw Plot
+create_scatter <- function(chemical, chemical_name, start, end, step){
+  p <- ggplot(aes(x=chemical, y=quality),data=df)+
+        geom_point(alpha = 0.1, size = 1, position = 'jitter')+
+        scale_x_continuous(limits = c(start, end),
+                          breaks = seq(start, end, step))+
+        line_mean +
+        line_median +
+        labs(
+            x = chemical_name,
+            y = "Quality"
+         )
+  
+  return(p)
+}
 ```
 
 ```{r results = 'hide'}
@@ -190,6 +251,21 @@ df$quality.group <-
 table(df$quality.group,
       useNA = 'ifany')
 ```
+```{r}
+chemical_names <- c(
+    'Alcohol',
+    'Citric Acid',
+    'Density',
+    'Chlorides',
+    'Fixed Acidity', 
+    'Free Sulfur Dioxide', 
+    'pH Value',
+    'Residual Sugar',
+    'Sulphates',
+    'Volatile Acidity',
+    'Total Sulfur Dioxide'
+)
+```
 
 ```{r}
 #Ridge Line Plot
@@ -197,6 +273,21 @@ table(df$quality.group,
 # Step 2: subset: df without quality=NA
 
 df_quality <- subset(df, !is.na(quality.group))
+
+chemicals_group_by_qty <- list(
+    df_quality$alcohol,
+    df_quality$citric.acid,
+    df_quality$density,
+    df_quality$chlorides,
+    df_quality$fixed.acidity, 
+    df_quality$free.sulfur.dioxide, 
+    df_quality$pH,
+    df_quality$residual.sugar,
+    df_quality$sulphates,
+    df_quality$volatile.acidity,
+    df_quality$total.sulfur.dioxide
+)
+
 ```
 
 ```{r}
@@ -239,55 +330,24 @@ data_summary <- function(x) {
 
 # Function: draw plot (chemicals vs quality.group)
 
-create_violin <- function(chemical){
+create_violin <- function(chemical, chemical_name){
   p <-  ggplot(df_quality, 
                aes(x = quality.group, 
                    y = chemical, 
                    fill = quality.group)) + 
           geom_violin() + 
-          stat_summary(fun.data=data_summary)
-      
+          stat_summary(fun.data=data_summary)+ 
+          coord_flip() + #flip x and y
+          labs(
+                  y = chemical_name,
+                  x = "Quality"
+               )
+            
   return(p)
 }
 
 ```
 
-```{r}
-# Scatter Plot with Lines
-
-# Step 1: Lines
-line_mean <- geom_line(stat='summary', fun.y=mean, 
-                       linetype=1, color='red')
-
-line_median <- geom_line(stat='summary', fun.y=quantile,
-                         fun.args=list(probs=.5),
-                         linetype=1, color=my_color)
-
-```
-
-```{r}
-# Scatter Plot with Lines
-
-# Step 2: Draw Plot
-create_scatter <- function(chemical){
-  p <- ggplot(aes(x=chemical, y=quality),data=df)+
-        geom_point(alpha = 0.1, size = 1, position = 'jitter')+
-        line_mean +
-        line_median
-  return(p)
-}
-```
-
-```{r}
-# Scatter Plot with Lines
-
-# Step 3: Draw log10 Plot
-create_scatter_log10 <- function(chemical){
-  p <- create_scatter(chemical) +
-         scale_x_continuous(trans = 'log10')
-  return(p)
-}
-```
 
 
 
@@ -331,7 +391,6 @@ ggplot(aes(x=quality, y = ..count..), data =df) +
 
 
 ### Chemicals
-
 ```{r}
 # Draw Univariate Plots (group of 4)
 for (c in chemicals) {
@@ -351,33 +410,31 @@ for (c in chemicals) {
 }
 ```
 
-
-
 ## Bivariate Plots
-
-#### Fixed Acidity (log10) & Quality
 ```{r}
-create_scatter_log10(df$fixed.acidity)
+# 3 kinds of plot to explore 
+# the relationship between a chemical and the quality
+
+for (i in 1:11){
+  p1 <- create_scatter(chemicals[[i]][[1]],
+                       chemical_names[[i]],
+                       chemicals[[i]][[3]],
+                       chemicals[[i]][[4]],
+                       chemicals[[i]][[5]])
+  p2 <- create_ridgeline(chemicals_group_by_qty[[i]], chemical_names[[i]])
+  p3 <- create_violin(chemicals_group_by_qty[[i]], chemical_names[[i]])
+  
+  print(p1)
+  print(p2)
+  print(p3)
+}
 ```
-
-#### Ridge Line Plot
-```{r}
-create_ridgeline(df_quality$fixed.acidity, 'Fixed Acidity')
-```
-
-#### Violin Plot
-```{r}
-create_violin(df_quality$fixed.acidity)
-```
-
-
 
 
 ## Multivariate Plots
 
 
 ### Correlation Matrix
-
 ```{r results = 'hide'}
 # Compute 'Pearson' correlation between chemicals
 df_no_quality <- df[, (2:12)]
