@@ -11,6 +11,11 @@ The tidy data set contains 1,599 red wines with 11 variables on the chemical pro
 
 ## Exploration of Data
 
+```{r}
+install.packages('ggridges')
+```
+
+
 ### Load libraries
 ```{r}
 library(GGally, ggplot2)
@@ -851,3 +856,13 @@ I chose the chemicals that are significantly correlated with quality. After chec
 The quality scores are mainly between 5-6, and some are 7. Besides, none of the wines were scored 0-2 and 9-10. A 5-point scale would be better for scoring. 
 
 Besides, it would be helpful to ask experts to score the acidity and sweetness after tasting (e.g 1-Not sweet at all ~ 5-Too sweet).
+
+
+
+```{r}
+ggplot(aes(x = fixed.acidity, y = quality.group, fill = quality.group), 
+       data= df_quality) +
+  geom_density_ridges(scale = 0.8, size = 0.25, rel_min_height = 0.03) +
+  theme_ridges() + 
+  theme(legend.position = "none")
+```
