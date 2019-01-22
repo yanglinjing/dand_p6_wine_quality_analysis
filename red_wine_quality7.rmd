@@ -28,10 +28,12 @@ The tidy data set contains 1,599 red wines with 11 variables on the chemical pro
 ###Output variable (based on sensory data): 
 12. quality (score between 0 and 10)
 
-## Information of the original data
-+ P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
-+ Modeling wine preferences by data mining from physicochemical properties.
-+ In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.
+
+
+#### Information of the Original Data:
++  P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
++  Modeling wine preferences by data mining from physicochemical properties.
++  In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.
 
 
 # Exploration of Data
@@ -79,7 +81,7 @@ str(df)
 
 ```{r}
 # show the head of the data
-df %>% head(6) %>% kable() %>%
+df[, (2:13)] %>% head(6) %>% kable() %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
     full_width = F
@@ -87,72 +89,12 @@ df %>% head(6) %>% kable() %>%
 ```
 
 ```{r}
-# Color of this report: '#008AD8'
-my_color <- '#008AD8'
-
-# alpha=0.55
-my_alpha <- 0.7
-```
-
-```{r}
-# Plot arguments of all chemicals
-
-# Step 1: Add plot arguments to a list for each varialbe
-
-# variable <- list(data, name, start, end, step)
-alcohol <- list(df$alcohol, 'Alcohol', 8, 15, 1) 
-
-citric.acid <- list(df$citric.acid, 
-                    'Citric Acid', 
-                    0, 1, 0.1)
-
-chlorides <- list(df$chlorides, 
-                  'Chlorides', 
-                  0, 0.2, 0.02) 
-
-density <- list(df$density, 
-                'Density', 
-                0.99, 1, 0.01) 
-
-fixed.acidity <- list(df$fixed.acidity, 
-                      'Fixed Acidity', 
-                      4, 16, 1) 
-
-free.sulfur.dioxide <- list(df$free.sulfur.dioxide, 
-                            'Free Sulfur Dioxide', 
-                            1, 72, 10) 
-
-pH <- list(df$pH, 'pH Value', 2.7, 4.1, 0.5) 
-
-residual.sugar <- list(df$residual.sugar, 
-                       'Residual Sugar', 
-                       0, 5, 0.5) 
-
-sulphates <- list(df$sulphates, 
-                  'Sulphates', 
-                  0.3, 1.3, 0.2) 
-
-volatile.acidity <- list(df$volatile.acidity, 
-                         'Volatile Acidity', 
-                         0, 1.2, 0.2) 
-
-total.sulfur.dioxide <- list(df$total.sulfur.dioxide, 
-                             'Total Sulfur Dioxide', 
-                             6, 160, 50) 
-
-
-
-
-```
-
-
-```{r}
 # All chemicals in df
 chemicals <-  list(
                 df$alcohol,
                 df$citric.acid,
-                df$density,
                 df$chlorides,
+                df$density,
                 df$fixed.acidity, 
                 df$free.sulfur.dioxide, 
                 df$pH,
@@ -173,8 +115,8 @@ chemicals <-  list(
 chemical_names <- c(
     'Alcohol',
     'Citric Acid',
-    'Density',
     'Chlorides',
+    'Density',
     'Fixed Acidity', 
     'Free Sulfur Dioxide', 
     'pH Value',
@@ -190,38 +132,79 @@ chemical_names <- c(
 
 # c(start, end, step)
 
+chemical_units <- list(
+                      #alcohol  1
+                      '(% by volume)',
+                      
+                      #citric.acid 2
+                      '(g / dm^3)',
+                      
+                      #chlorides 3
+                      '(g / dm^3)',
+                      
+                      #density 4
+                      '(g / cm^3)',
+                      
+                      #fixed.acidity 5
+                      '(g / dm^3)', 
+                      
+                      #free.sulfur.dioxide 6 
+                      '(mg / dm^3)', 
+                      
+                      #pH 7
+                      '', 
+                      
+                      #residual.sugar 8 
+                      '(g / dm^3)', 
+                      
+                      #sulphates 9
+                      '(g / dm3)',
+                      
+                      #volatile.acidity 10
+                      '(g / dm^3)', 
+                      
+                      #total.sulfur.dioxide 11
+                      '(mg / dm^3)' 
+                    )
+```
+
+```{r}
+# Plot arguments of chemicals
+
+# c(start, end, step)
+
 chemical_args <- list(
-                      #alcohol 
+                      #alcohol  1
                       c(8, 15, 1),
                       
-                      #citric.acid 
+                      #citric.acid 2
                       c(0, 1, 0.1),
                       
-                      #chlorides
+                      #chlorides 3
                       c(0, 0.2, 0.02),
                       
-                      #density
-                      c(0.99, 1, 0.01),
+                      #density 4
+                      c(0.99, 1.0037, 0.01),
                       
-                      #fixed.acidity
+                      #fixed.acidity 5
                       c(4, 16, 1), 
                       
-                      #free.sulfur.dioxide
+                      #free.sulfur.dioxide 6 
                       c(1, 72, 10), 
                       
-                      #pH
+                      #pH 7
                       c(2.7, 4.1, 0.5), 
                       
-                      #residual.sugar
-                      c(0, 5, 0.5), 
+                      #residual.sugar 8 
+                      c(1, 5, 0.5), 
                       
-                      #sulphates
+                      #sulphates 9
                       c(0.3, 1.3, 0.2),
                       
-                      #volatile.acidity
-                      c(0, 1.2, 0.2), 
+                      #volatile.acidity 10
+                      c(0.1, 1.2, 0.2), 
                       
-                      #total.sulfur.dioxide
+                      #total.sulfur.dioxide 11
                       c(6, 160, 50) 
                     )
 ```
@@ -229,47 +212,56 @@ chemical_args <- list(
 ```{r}
 # Function: Density plot
 
-create_density <- function(chemical, chemical_name, start, end, step){
-  p <- ggplot(aes(x=chemical), 
-              data =df) +
-       geom_density(alpha = my_alpha, fill= my_color, color = my_color) +
-       scale_x_continuous(limits = c(start, end),
-                          breaks = seq(start, end, step))+
-       labs(
-         x = chemical_name,
-         y = 'Density')
-  return(p)
-}
+create_density <- 
+  function(chemical, chemical_name, start, end, step, chemical_unit){
+    p <- ggplot(aes(x=chemical), 
+                data =df) +
+         geom_density(alpha = my_alpha, fill= my_color, color = my_color) +
+         scale_x_continuous(limits = c(start, end),
+                            breaks = seq(start, end, step))+
+         labs(
+           x = paste(chemical_name, chemical_unit),
+           y = 'Density')
+    return(p)
+  }
 ```
 
 ```{r}
 # Function: create 3 histograms: orginal, log10, sqrt
 # And put density plot together
 
-create_4_plots_table <- function(chemical, chemical_name, start, end, step){
-  p1 <- ggplot(aes(x=chemical), data= df) +
-          geom_histogram(alpha = my_alpha, fill= my_color) +
-          xlab(paste(chemical_name, "(original data)", sep = ' '))
+create_4_plots_table <- 
+  function(chemical, chemical_name, start, end, step, chemical_unit){
+    p1 <- ggplot(aes(x=chemical), data= df) +
+            geom_histogram(alpha = my_alpha, fill= my_color) +
+            xlab(paste(chemical_name, chemical_unit, sep = ' '))
+    
+    p2 <- p1 + scale_x_log10() + 
+               xlab(paste(chemical_name, "(log10)", sep = ' '))
+    
+    p3 <- p1 + scale_x_sqrt() + 
+               xlab(paste(chemical_name, "(sqrt)", sep = ' '))
   
-  p2 <- p1 + scale_x_log10() + 
-             xlab(paste(chemical_name, "(log10)", sep = ' '))
-  
-  p3 <- p1 + scale_x_sqrt() + 
-             xlab(paste(chemical_name, "(sqrt)", sep = ' '))
-
-  p0 <- create_density(chemical, chemical_name, start, end, step)
-  
-  p <- grid.arrange(p0, p1, p2, p3, 
-                    ncol=2, 
-                    top = chemical_name) 
-  return(p)
-}
+    p0 <- create_density(chemical, chemical_name, 
+                         start, end, step, chemical_unit)
+    
+    p <- grid.arrange(p0, p1, p2, p3, 
+                      ncol=2, 
+                      top = chemical_name # Name of the four plots
+                      ) 
+    return(p)
+  }
 ```
 
 ```{r}
 # Scatter Plot with Lines
 
-# Step 1: Lines
+# Step 1: set arguments
+
+my_color <- '#008AD8'   # Main Color of this report: blue
+
+my_alpha <- 0.7
+
 line_mean <- geom_line(stat='summary', fun.y=mean, 
                        linetype=1, color='red')
 
@@ -277,39 +269,34 @@ line_median <- geom_line(stat='summary', fun.y=quantile,
                          fun.args=list(probs=.5),
                          linetype=1, color=my_color)
 
+my_theme <- theme(
+                plot.title = element_text(size = 20),  
+                axis.title.x = element_text(size = 14),  
+                axis.title.y = element_text(size = 14),
+                legend.title = element_text(size = 14),
+                legend.text = element_text(size = 12)
+             )
 ```
-
-```{r}
-stat_cor <- annotate(x=1.5, y=1.5, 
-                     label=paste("R = ", 
-                                 round(cor(df$alcohol, df$quality),2)), 
-                     geom="text", size=5)
-```
-
-
-```{r}
-test <- annotate("text", x = 4, y = 25, label = "Some text")
-```
-
 
 ```{r}
 # Scatter Plot with Lines
 
 # Step 2: Draw Plot
-create_scatter <- function(chemical, chemical_name, start, end, step){
-  p <- ggplot(aes(x=chemical, y=quality),data=df)+
-        geom_point(alpha = 0.1, size = 1, position = 'jitter')+
-        scale_x_continuous(limits = c(start, end),
-                          breaks = seq(start, end, step))+
-        line_mean +
-        line_median +
-        labs(
-            x = chemical_name,
-            y = "Quality"
-         )
-  
-  return(p)
-}
+create_scatter <- 
+  function(chemical, chemical_name, start, end, step, chemical_unit){
+    p <- ggplot(aes(x=chemical, y=quality),data=df)+
+          geom_point(alpha = 0.1, size = 1, position = 'jitter') +
+          scale_x_continuous(limits = c(start, end),
+                            breaks = seq(start, end, step)) +
+          line_mean +
+          line_median +
+          labs(
+              x = paste(chemical_name, chemical_unit),
+              y = "Quality"
+           )
+    
+    return(p)
+  }
 ```
 
 
@@ -326,7 +313,6 @@ table(df$quality.group,
       useNA = 'ifany')
 ```
 
-
 ```{r}
 #Ridge Line Plot
 
@@ -337,8 +323,8 @@ df_quality <- subset(df, !is.na(quality.group))
 chemicals_group_by_qty <- list(
                                 df_quality$alcohol,
                                 df_quality$citric.acid,
-                                df_quality$density,
                                 df_quality$chlorides,
+                                df_quality$density,
                                 df_quality$fixed.acidity, 
                                 df_quality$free.sulfur.dioxide, 
                                 df_quality$pH,
@@ -355,20 +341,24 @@ chemicals_group_by_qty <- list(
 
 # Step 3: Function: Ridge Line Plot
 
-create_ridgeline <- function(chemical, chemical_name){
+create_ridgeline <- function(chemical, chemical_name, start, end, step){
   p <- ggplot(aes(x = chemical, y = quality.group, fill = quality.group), 
               data= df_quality) +
          geom_density_ridges(scale = 0.8, size = 0.25, rel_min_height = 0.03) +
+         scale_x_continuous(limits = c(start, end),
+                            breaks = seq(start, end, step))+
          theme_ridges() + 
          theme(legend.position = "none")+
          labs(
             x = chemical_name,
             y = "Quality"
-         )
-          
+         ) +
+         my_theme
+              
   return(p)
 }
 ```
+
 
 ```{r}
 #Violin Plot: Step 1
@@ -390,25 +380,89 @@ data_summary <- function(x) {
 
 # Function: draw plot (chemicals vs quality.group)
 
-create_violin <- function(chemical, chemical_name){
+create_violin <- function(chemical, chemical_name, start, end, step){
   p <-  ggplot(df_quality, 
                aes(x = quality.group, 
                    y = chemical, 
                    fill = quality.group)) + 
           geom_violin() + 
+          scale_y_continuous(limits = c(start, end),
+                                breaks = seq(start, end, step))+
           stat_summary(fun.data=data_summary)+ 
           coord_flip() + #flip x and y
           labs(
                   y = chemical_name,
                   x = "Quality"
-               )
+          )+
+          my_theme
             
   return(p)
 }
 
+# Because I flipped x and y,
+# scale_y_continuous was used, and x- / y- labs were exchanged.
+
 ```
 
+```{r}
+# test
+#create_violin(df_quality$alcohol, 'Alcohol', 8, 15, 1)
+```
 
+```{r results='hide'}
+# Scatter Plot: 3 variables -- Two chemicals + Quality (group by alcohol)
+
+# Step 1: group df by alcohol
+
+# add a new variable for grouping
+df$alcohol.group <-
+  cut(df$alcohol, c(8.4,9.2,9.5,10,10.5,11,12,14.9))
+
+# check the new variable
+table(df$alcohol.group, useNA = 'ifany')
+
+```
+
+```{r}
+# Step 2: build new subset without NA of alcohol
+
+df_alcohol <- subset(df, !is.na(alcohol.group))
+```
+
+```{r}
+# Step 3: Draw Plot
+
+create_scatter_3var <- function(c1, c1_name, c1_unit, # c1 - Chemical at x-axis
+                                start, end, step, 
+                                c2, c2_name, c2_unit) { # c2 - Chemical put into group
+  p <- ggplot(aes(x = c1, y = quality, color = c2), data = df_alcohol) +
+    
+          geom_point(alpha = 0.5, size = 1, position = 'jitter') + 
+    
+          scale_color_brewer(type = 'div',
+                       guide = guide_legend(title = paste(c2_name, c2_unit), 
+                                            reverse = TRUE,
+                                            override.aes = list(alpha = 1, size = 2)))+
+    
+          scale_x_continuous(
+                             limits = c(start, end),
+                             breaks = seq(start, end, step)
+                             )+
+          line_mean +
+          line_median +
+    
+          labs(
+                title = paste('Quality v.s.\n', c1_name, '&', c2_name),
+                x = paste(c1_name, c1_unit),
+                y = "Quality"
+          ) +
+    
+          my_theme # theme()
+
+  return(p)
+  
+}
+```
 
 
 ## Univariate Plots
@@ -417,11 +471,8 @@ create_violin <- function(chemical, chemical_name){
 ```{r}
 # Show the histogram of all variables
 
-# Drop 1st column 
-df_s <- df[, (2:13)]
-
 # Draw histograms
-df_s %>%
+df[, (2:13)] %>%  # Drop 1st column 
   as.tibble() %>%
   gather(variable, value) %>%
   ggplot( aes(x=value) ) +
@@ -432,7 +483,6 @@ df_s %>%
 
 ### Quality (Rating 0 - 10)
 
-#### Summary
 ```{r}
 summary(df$quality)
 ```
@@ -441,7 +491,6 @@ summary(df$quality)
 table(df$quality)
 ```
 
-#### Histogram
 ```{r}
 ggplot(aes(x=quality, y = ..count..), data =df) +
   geom_histogram(alpha = my_alpha, fill= my_color)+
@@ -462,7 +511,8 @@ for (i in 1:11) {
                             chemical_names[[i]],
                             chemical_args[[i]][[1]],
                             chemical_args[[i]][[2]],
-                            chemical_args[[i]][[3]]
+                            chemical_args[[i]][[3]],
+                            chemical_units[[i]]
                           )
   
   #print(p) -- ggplot requires 'print(p)' as it is in this loop function, but no need 'print(p)' with arrange.grib. Otherwise the output includes the gtable.
@@ -483,26 +533,34 @@ for (i in 1:11) {
 # the relationship between a chemical and the quality
 
 for (i in 1:11){
-  p1 <- create_scatter(
-                        chemicals[[i]],
-                        chemical_names[[i]],
-                        chemical_args[[i]][[1]],
-                        chemical_args[[i]][[2]],
-                        chemical_args[[i]][[3]]
-                      )
-  p2 <- create_ridgeline(chemicals_group_by_qty[[i]], chemical_names[[i]])
-  p3 <- create_violin(chemicals_group_by_qty[[i]], chemical_names[[i]])
   
-  title <- paste(chemical_names[[i]] ," and Quality\n")
+  # step 1: get arguments
+  c1 <- chemicals[[i]]
+  c2 <- chemicals_group_by_qty[[i]]
   
+  c_name <- chemical_names[[i]]
+  
+  unit <- chemical_units[[i]]
+  
+  start <- chemical_args[[i]][[1]]
+  end <- chemical_args[[i]][[2]]
+  step <- chemical_args[[i]][[3]]
+  
+  title <- paste(c_name, "and Quality\n")
+  
+  # step 2: draw plots
+  p1 <- create_scatter(c1, c_name, start, end, step, unit)
+  p2 <- create_ridgeline(c2, c_name, start, end, step)
+  p3 <- create_violin(c2, c_name, start, end, step)
+  
+  # step 3: print plots
   cat(title)
   print(p1)
-  print(p2)
-  print(p3)
+  grid.arrange(p2, p3, nrow = 1)
 }
 ```
 
-### Spearman Correlation Coefficient between Quality and Chemicals
+
 ### Spearman Correlation Coefficience: Quality vs Chemicals
 ```{r}
 # Spearman Correlation: Quality vs Chemicals
@@ -522,7 +580,7 @@ for (i in 1:11) {
 ```
 
 ```{r}
-# Show r
+# Show r in table
 
 # Ordered by absolute value of r
 cor_table <- arrange(cor_quality, desc(abs(r)))
@@ -535,7 +593,6 @@ cor_table %>% kable() %>%
   )
 
 ```
-
 
 ```{r}
 # Plot of r
@@ -564,11 +621,7 @@ cor_quality %>%
 
 
 
-
 ## Multivariate Plots
-
-### 3 variables
-
 
 ### Correlation Matrix between Chemicals
 ```{r results = 'hide'}
@@ -651,3 +704,32 @@ scatterplotMatrix(~citric.acid +
 ```
 
 
+### 
+
+3 chemicals are correlated with quality:
+
++ Volatile Acidity: negative
++ Sulphates: positive
++ Alcohol: positive
+
+```{r}
+# Draw Scatter Plot: volatile.acidity & alcohol & quality
+create_scatter_3var(df_alcohol$volatile.acidity, 'Volatile Acidity', 
+                    chemical_units[[10]],
+                    chemical_args[[10]][[1]],
+                    chemical_args[[10]][[2]],
+                    chemical_args[[10]][[3]],
+                    df_alcohol$alcohol.group, 'Alcohol',
+                    chemical_units[[1]])
+```
+
+```{r}
+# Draw Scatter Plot: sulphates & alcohol & quality
+create_scatter_3var(df_alcohol$sulphates, 'Sulphates', 
+                    chemical_units[[9]],
+                    chemical_args[[9]][[1]],
+                    chemical_args[[9]][[2]],
+                    chemical_args[[9]][[3]],
+                    df_alcohol$alcohol.group, 'Alcohol',
+                    chemical_units[[1]])
+```
