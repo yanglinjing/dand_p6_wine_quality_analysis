@@ -4,7 +4,7 @@
 By Linjing Yang
 
 # Introduction
-The tidy data set contains 1,599 red wines with 11 variables on the chemical properties of the wine. At least 3 wine experts rated the quality of each wine, providing a rating between 0 (very bad) and 10 (very excellent).
+The tidy data set contains 1,599 red wines [^1] with 11 variables on the chemical properties of the wine. At least 3 wine experts rated the quality of each wine, providing a rating between 0 (very bad) and 10 (very excellent).
 
 + 1599 records
 + 11 chemical properties
@@ -30,10 +30,6 @@ The tidy data set contains 1,599 red wines with 11 variables on the chemical pro
 
 
 
-#### Information of the Original Data:
-+  P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
-+  Modeling wine preferences by data mining from physicochemical properties.
-+  In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.
 
 
 # Exploration of Data
@@ -291,6 +287,7 @@ create_scatter <-
           line_mean +
           line_median +
           labs(
+              title = paste(chemical_name, 'and Quality'),
               x = paste(chemical_name, chemical_unit),
               y = "Quality"
            )
@@ -404,11 +401,6 @@ create_violin <- function(chemical, chemical_name, start, end, step){
 
 ```
 
-```{r}
-# test
-#create_violin(df_quality$alcohol, 'Alcohol', 8, 15, 1)
-```
-
 ```{r results='hide'}
 # Scatter Plot: 3 variables -- Two chemicals + Quality (group by alcohol)
 
@@ -434,13 +426,14 @@ df_alcohol <- subset(df, !is.na(alcohol.group))
 
 create_scatter_3var <- function(c1, c1_name, c1_unit, # c1 - Chemical at x-axis
                                 start, end, step, 
-                                c2, c2_name, c2_unit) { # c2 - Chemical put into group
+                                c2, c2_name, c2_unit  # c2 - Chemical put into group
+                                ) {
   p <- ggplot(aes(x = c1, y = quality, color = c2), data = df_alcohol) +
     
           geom_point(alpha = 0.5, size = 1, position = 'jitter') + 
     
           scale_color_brewer(type = 'div',
-                       guide = guide_legend(title = paste(c2_name, c2_unit), 
+                       guide = guide_legend(title = paste(c2_name,'\n', c2_unit), 
                                             reverse = TRUE,
                                             override.aes = list(alpha = 1, size = 2)))+
     
@@ -479,7 +472,6 @@ df[, (2:13)] %>%  # Drop 1st column
     geom_histogram(alpha = my_alpha, fill= my_color) +
     facet_wrap(~variable, scale="free")
 ```
-
 
 ### Quality (Rating 0 - 10)
 
@@ -527,7 +519,11 @@ for (i in 1:11) {
 ```
 
 
+
+
 ## Bivariate Plots
+
+### Plots: Quality vs Chemicals
 ```{r}
 # 3 kinds of plot to explore 
 # the relationship between a chemical and the quality
@@ -546,20 +542,22 @@ for (i in 1:11){
   end <- chemical_args[[i]][[2]]
   step <- chemical_args[[i]][[3]]
   
-  title <- paste(c_name, "and Quality\n")
-  
   # step 2: draw plots
   p1 <- create_scatter(c1, c_name, start, end, step, unit)
   p2 <- create_ridgeline(c2, c_name, start, end, step)
   p3 <- create_violin(c2, c_name, start, end, step)
   
   # step 3: print plots
-  cat(title)
   print(p1)
   grid.arrange(p2, p3, nrow = 1)
 }
 ```
 
+From the plots above, we can find that there are 3 chemicals correlated with quality:
+
++ Volatile Acidity: negative
++ Sulphates: positive
++ Alcohol: positive
 
 ### Spearman Correlation Coefficience: Quality vs Chemicals
 ```{r}
@@ -618,12 +616,15 @@ cor_quality %>%
   ylab("Spearman Correlation Coefficience with Quality")
 ```
 
++ Alcohol, Volatile Acidity and Sulphates are moderately correlated with quality.
+
++ Other chemicals are not correlated with quality.
 
 
 
-## Multivariate Plots
+## Multivariate Plots - Chemicals
 
-### Correlation Matrix between Chemicals
+### Correlation Matrix
 ```{r results = 'hide'}
 # Compute 'Pearson' correlation between chemicals
 df_no_quality <- df[, (2:12)]
@@ -631,7 +632,7 @@ r <- cor(df_no_quality)
 head(round(r,2))
 ```
 
-#### Correlation
+### Correlation
 ```{r}
 # Build a Pannel of 100 colors with Rcolor Brewer
 r_colors <- brewer.pal(5, "RdBu")
@@ -643,7 +644,7 @@ r_ord = r[ord, ord]
 plotcorr(r_ord , col=r_colors[r_ord*50+50] , mar=c(1,1,1,1)  )
 ```
 
-#### Pearson Correlation Coefficient between Chemicals
+### Pearson Correlation Coefficient between Chemicals
 ```{r results='hide'}
 #To compute the matrix of p-value, a custom R function is used :
 
@@ -686,7 +687,20 @@ corrplot(r, method="color", col=col(1000),
 ### source: http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram
 ```
 
-#### Moderately / Highly Correlated Chemicals
+The three chemicals that are moderately correlated with quality - Alcohol, Volatile Acidity and Sulphates, are not correlate with each other.
+
+High Correlation:
+
++ pH v.s Fixed Acidity
++ pH v.s. Citric Aciity
++ Citric Acid v.s. Fixed Acidity
+
++ Citric Acidity v.s. Volatile Acidity
++ Density v.s. Fixed Acidity
+
++ Free Sulfur Dioxide v.s. Total Sulfur Dioxide
+
+### Moderately / Highly Correlated Chemicals
 ```{r}
 # plot the chemicals with r>0.5
 scatterplotMatrix(~citric.acid +
@@ -704,7 +718,53 @@ scatterplotMatrix(~citric.acid +
 ```
 
 
-### 
+### Plots: PH, Fixed Acidity & Density
+```{r results='hide'}
+## Step 1: group df by fixed.acidity
+
+# add a new variable for grouping
+df$fixed.acidity.group <-
+  cut(df$fixed.acidity, c(4.60, 7.10, 7.90, 9.20, 15.90))
+
+# check the new variable
+table(df$fixed.acidity.group, useNA = 'ifany')
+```
+
+```{r}
+# Step 2: build new subset without NA of fixed.acidity
+
+df_fixed.acidity <- subset(df, !is.na(fixed.acidity.group))
+```
+
+```{r}
+# Step 3: draw plot - PH, Fixed Acidity & Density
+p_3 <- ggplot(aes(x = citric.acid, y = pH, color = fixed.acidity.group),
+              data = df_fixed.acidity )+
+        geom_point(alpha = 0.5, size = 1, position = 'jitter')+
+        scale_color_brewer(type = 'div',
+                           guide = guide_legend(title = "Fixed Acidity\n (g / dm^3)", 
+                                                reverse = TRUE,
+                                                override.aes = list(alpha = 1, size = 2)))+
+        scale_x_continuous()+
+        line_mean +
+        line_median+
+        ggtitle('PH Values v.s.\n Citric Acid & Fixed Acidity')+ 
+        xlab("Citric Acid (g / cm^3)") + 
+        ylab("PH Value")+
+        my_theme
+print(p_3)
+```
+
++ Citric Acid and pH values are negatively correlated.
+
++ Fixed acidity and pH values are negatively correlated.
+
++ Fixed acidity and density values are positively correlated.
+
+
+
+
+## Multivariate Plots - Quality v.s. Chemicals
 
 3 chemicals are correlated with quality:
 
@@ -712,24 +772,121 @@ scatterplotMatrix(~citric.acid +
 + Sulphates: positive
 + Alcohol: positive
 
+From the correlation matrix above, it can be found that these 3 chemicals are not correlated with each other. Thus, they independently affect quality scores.
+
+### Quality, Alcohol and Volatile Acidity
 ```{r}
 # Draw Scatter Plot: volatile.acidity & alcohol & quality
-create_scatter_3var(df_alcohol$volatile.acidity, 'Volatile Acidity', 
+p_1 <- create_scatter_3var(df_alcohol$volatile.acidity, 'Volatile Acidity', 
                     chemical_units[[10]],
                     chemical_args[[10]][[1]],
                     chemical_args[[10]][[2]],
                     chemical_args[[10]][[3]],
                     df_alcohol$alcohol.group, 'Alcohol',
                     chemical_units[[1]])
+print(p_1) # p_1 will be used in "Final Plots" Section
 ```
 
++ Alcohol and quality are positively correlated.
+
++ Volatile acidity and quality are negatively correlated.
+
+### Quality, Alcohol and Sulphates
 ```{r}
 # Draw Scatter Plot: sulphates & alcohol & quality
-create_scatter_3var(df_alcohol$sulphates, 'Sulphates', 
+p_2 <- create_scatter_3var(df_alcohol$sulphates, 'Sulphates', 
                     chemical_units[[9]],
                     chemical_args[[9]][[1]],
                     chemical_args[[9]][[2]],
                     chemical_args[[9]][[3]],
                     df_alcohol$alcohol.group, 'Alcohol',
-                    chemical_units[[1]])
+                    chemical_units[[1]]
+                    )
+print(p_2) # p_2 will be used in "Final Plots" Section
 ```
+
++ Alcohol and quality are positively correlated.
+
++ Sulphates and quality are positively correlated.
+
+
+
+# Final Plots and Summary
+
+## Quality, Alcohol and Volatile Acidity
+```{r}
+# Draw Scatter Plot: volatile.acidity & alcohol & quality
+print(p_1)
+```
+
++ Alcohol and quality are positively correlated.
+
++ Volatile acidity and quality are negatively correlated.
+
+
+## Quality, Alcohol and Sulphates
+```{r}
+# Draw Scatter Plot: sulphates & alcohol & quality
+print(p_2)
+```
+
++ Alcohol and quality are positively correlated.
+
++ Sulphates and quality are positively correlated.
+
+
+## PH Values, Density and Fixed Acidity
+```{r}
+# Scatter plot: PH, Fixed Acidity & Density
+print(p_3)
+```
+
++ Density and pH values are negatively correlated.
+
++ Fixed acidity and pH values are negatively correlated.
+
++ Fixed acidity and density values are positively correlated.
+
+
+# Reflection
+
+## Conclusion
+3 out of 11 chemicals are moderately correlated with quality:
+
++ Volatile Acidity (negatively),
++ Sulphates (positively) and
++ Alcohol (positively),
+
+while others are not correlated.
+
+Besides, these 3 chemicals are not correlated with each other. Thus, they can be used to predict the quality score.
+
+## Limitation
+
+There are some chemicals highly correlated with each other:
+
++ pH and Fixed Acidity
++ pH and. Citric Aciity
++ Citric Acid and Fixed Acidity
++ Citric Acidity and Volatile Acidity
++ Density and Fixed Acidity
++ Free Sulfur Dioxide and Total Sulfur Dioxide
+
+To design a better experiment, it would be helpful to drop some of the highly correlated variables.
+
+
+Besides, the quality scores are mainly between 5-6, and some are 7. It can be noticed that none of the wines were scored 0-2 and 9-10. Usually a 5-point scale would be better for scoring. 
+
+It might also be helpful to ask experts to score the acidity and sweetness after tasting (e.g 1-Not sweet at all ~ 5-Too sweet). Then we can compare the degree of real sweetness /sourness and the subjective feeling of it.
+
+## Success and Improvement
+
+I feel it is much more clear to separate the data and the plot function. The code structure is better after gathering data and put it into array-like storage.
+
+I would try more kinds of plots and to add more details for the plots the next time (e.g. I tried to add a layer to show correlation coefficiency on the scatter plot, but I failed.)
+
+
+[^1]: Information of the Original Data:
+ P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis. 
+ Modeling wine preferences by data mining from physicochemical properties.
+ In Decision Support Systems, Elsevier, 47(4):547-553. ISSN: 0167-9236.
