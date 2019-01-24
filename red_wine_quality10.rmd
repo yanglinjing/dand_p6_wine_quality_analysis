@@ -58,6 +58,7 @@ library(corrplot) # Correlation Matrix (with cor. number)
 
 library(ellipse)
 library(RColorBrewer)
+library(ggpubr) # add cor coefficient to scatter plot
 ```
 
 ```{r results = 'hide'}
@@ -77,7 +78,13 @@ str(df)
 
 ```{r}
 # show the head of the data
-df[, (2:13)] %>% head(6) %>% kable() %>%
+
+# Subset: drop 1st line - X
+# tmpdata <- subset(df, select = -c(varname))
+df_s <- subset(df, select = -c(X))
+
+# Draw the table
+df_s %>% head(6) %>% kable() %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
     full_width = F
@@ -250,51 +257,90 @@ create_4_plots_table <-
 ```
 
 ```{r}
-# Scatter Plot with Lines
-
-# Step 1: set arguments
+# set color arguments
 
 my_color <- '#008AD8'   # Main Color of this report: blue
 
-my_alpha <- 0.7
+# "#BB4444", "#EE9988" ,'#f9e0db', '#008AD8', #68c6f9,'#cfeaf9'
+red <- c("#BB4444", "#EE9988" ,'#f9e0db')
 
+blue <- c('#0167a3','#008AD8', '#68c6f9','#92cdef','#cfeaf9')
+
+my_alpha <- 0.7
+```
+
+```{r}
+# Set themes
+
+my_theme <- theme(
+                plot.title = element_text(size = 20),  
+                axis.title.x = element_text(size = 14),  
+                axis.title.y = element_text(size = 14),
+                
+                legend.title = element_text(size = 14),
+                legend.text = element_text(size = 12),
+                axis.text.x = element_text(angle = 90, hjust = 1) #Rotate axis labels
+             )
+```
+
+
+```{r}
+# Scatter plot: Lines
 line_mean <- geom_line(stat='summary', fun.y=mean, 
                        linetype=1, color='red')
 
 line_median <- geom_line(stat='summary', fun.y=quantile,
                          fun.args=list(probs=.5),
                          linetype=1, color=my_color)
-
-my_theme <- theme(
-                plot.title = element_text(size = 20),  
-                axis.title.x = element_text(size = 14),  
-                axis.title.y = element_text(size = 14),
-                legend.title = element_text(size = 14),
-                legend.text = element_text(size = 12)
-             )
 ```
 
 ```{r}
-# Scatter Plot with Lines
+# Scatter plot: Regression Line
+line_regression <- geom_smooth(method='lm',formula=y~x, 
+                               color=my_color, fill = "skyblue"
+                               )
+```
 
-# Step 2: Draw Plot
+
+```{r}
+# scatter plot:  Add correlation coefficient (r)
+
+# library(ggpubr)
+text_cor <- stat_cor(method = "spearman")
+```
+
+
+```{r}
+# Scatter Plot: Quality v.s. Chemical
+
+# Draw Plot
 create_scatter <- 
   function(chemical, chemical_name, start, end, step, chemical_unit){
     p <- ggplot(aes(x=chemical, y=quality),data=df)+
-          geom_point(alpha = 0.1, size = 1, position = 'jitter') +
+          geom_point(alpha = 0.1, size = 1, 
+                     position = 'jitter', color=my_color) +
           scale_x_continuous(limits = c(start, end),
                             breaks = seq(start, end, step)) +
-          line_mean +
-          line_median +
           labs(
               title = paste(chemical_name, 'and Quality'),
               x = paste(chemical_name, chemical_unit),
               y = "Quality"
-           )
-    
+           ) +
+          line_regression +
+          line_mean +
+          text_cor
     return(p)
   }
 ```
+
+
+
+```{r}
+#test
+
+#create_scatter(df$alcohol, 'Alcohol', 8, 15, 1, 'mg' )
+```
+
 
 
 ```{r results = 'hide'}
@@ -401,6 +447,7 @@ create_violin <- function(chemical, chemical_name, start, end, step){
 
 ```
 
+
 ```{r results='hide'}
 # Scatter Plot: 3 variables -- Two chemicals + Quality (group by alcohol)
 
@@ -441,8 +488,7 @@ create_scatter_3var <- function(c1, c1_name, c1_unit, # c1 - Chemical at x-axis
                              limits = c(start, end),
                              breaks = seq(start, end, step)
                              )+
-          line_mean +
-          line_median +
+          line_regression +
     
           labs(
                 title = paste('Quality v.s.\n', c1_name, '&', c2_name),
@@ -457,15 +503,195 @@ create_scatter_3var <- function(c1, c1_name, c1_unit, # c1 - Chemical at x-axis
 }
 ```
 
+```{r}
+# Bivarite Plots: scatter + ridgeline + violine plots
 
-## Univariate Plots
+draw_3_bivarite_plots <- function(c1, c2, c_name, start, end, step, unit){
+  #c1 <- chemical
+  #c2 <- chemicals_group_by_qty
+  
+  # step 1: draw plots
+  p1 <- create_scatter(c1, c_name, start, end, step, unit)
+  p2 <- create_ridgeline(c2, c_name, start, end, step)
+  p3 <- create_violin(c2, c_name, start, end, step)
+  
+  # step 2: print plots
+  print(p1)
+  grid.arrange(p2, p3, nrow = 1)
+}
+```
+
+
+```{r}
+# The doughnut function permits to draw a donut plot
+create_doughnut <-
+function (x, labels = names(x), 
+          edges = 200, 
+          outer.radius = 0.8, 
+          inner.radius=0.6, # inner.radius controls the width of the ring!
+          clockwise = FALSE,
+          init.angle = if (clockwise) 90 else 0, density = NULL, 
+          angle = 45, col = NULL, border = FALSE, lty = NULL, 
+          main = NULL, ...)
+{
+    if (!is.numeric(x) || any(is.na(x) | x < 0))
+        stop("'x' values must be positive.")
+    if (is.null(labels))
+        labels <- as.character(seq_along(x))
+    else labels <- as.graphicsAnnot(labels)
+    x <- c(0, cumsum(x)/sum(x))
+    dx <- diff(x)
+    nx <- length(dx)
+    plot.new()
+    pin <- par("pin")
+    xlim <- ylim <- c(-1, 1)
+    if (pin[1L] > pin[2L])
+        xlim <- (pin[1L]/pin[2L]) * xlim
+    else ylim <- (pin[2L]/pin[1L]) * ylim
+    plot.window(xlim, ylim, "", asp = 1)
+    if (is.null(col))
+        col <- if (is.null(density))
+          palette()
+        else par("fg")
+    col <- rep(col, length.out = nx)
+    border <- rep(border, length.out = nx)
+    lty <- rep(lty, length.out = nx)
+    angle <- rep(angle, length.out = nx)
+    density <- rep(density, length.out = nx)
+    twopi <- if (clockwise)
+        -2 * pi
+    else 2 * pi
+    t2xy <- function(t, radius) {
+        t2p <- twopi * t + init.angle * pi/180
+        list(x = radius * cos(t2p), 
+             y = radius * sin(t2p))
+    }
+    for (i in 1L:nx) {
+        n <- max(2, floor(edges * dx[i]))
+        P <- t2xy(seq.int(x[i], x[i + 1], length.out = n),
+                  outer.radius)
+        polygon(c(P$x, 0), c(P$y, 0), density = density[i], 
+                angle = angle[i], border = border[i], 
+                col = col[i], lty = lty[i])
+        Pout <- t2xy(mean(x[i + 0:1]), outer.radius)
+        
+        # labels
+        lab <- as.character(labels[i])
+        
+        if (!is.na(lab) && nzchar(lab)) {
+            lines(c(1, 1.05) * Pout$x, c(1, 1.05) * Pout$y)
+            text(1.1 * Pout$x, 1.1 * Pout$y, labels[i], 
+                 xpd = TRUE, adj = ifelse(Pout$x < 0, 1, 0), 
+                 ...)
+        }
+        ## Add white disc          
+        Pin <- t2xy(seq.int(0, 1, length.out = n*nx),
+                  inner.radius)
+        polygon(Pin$x, Pin$y, density = density[i], 
+                angle = angle[i], border = border[i], 
+                col = "white", lty = lty[i])
+    }
+ 
+    title(main = main, ...)
+    invisible(NULL)
+}
+
+
+# source: https://www.r-graph-gallery.com/130-ring-or-donut-chart/
+ 
+# Let's use the function, it works like PiePlot !
+# inner.radius controls the width of the ring!
+
+# test
+# create_doughnut(qlt_count, inner.radius=0.5,labels = qlt_category,col=qlt_color)
+
+```
+
+
+```{r}
+text_bivar <- list(
+  #alcohol  1
+  'Alcohol and Quality are positively correlated.',
+  
+  #citric.acid 2
+  'Citric Acid and Quality are not correlated.',
+  
+  #chlorides 3
+  'Chlorides and Quality are not correlated.',
+  
+  #density 4
+  'Density and Quality are not correlated.',
+  
+  #fixed.acidity 5
+  'Fixed Acidity and Quality are not correlated.', 
+  
+  #free.sulfur.dioxide 6 
+  'Free Sulfur Dioxide and Quality are not correlated.', 
+  
+  #pH 7
+  'PH values and Quality are not correlated.', 
+  
+  #residual.sugar 8 
+  'Residual Sugar and Quality are not correlated.', 
+                      
+  #sulphates 9
+  'Sulphates and Quality are positively correlated.',
+  
+  #volatile.acidity 10
+  'Volatile Acidity and Quality are negatively correlated.', 
+  
+  #total.sulfur.dioxide 11
+  'Free Sulfur Dioxide and Quality are not correlated.'
+)
+```
+
+```{r}
+text_univar <- list(
+  #alcohol  1
+  'Alcohol is right skewed.',
+  
+  #citric.acid 2
+  'Citric Acid is right skewed.',
+  
+  #chlorides 3
+  'Chlorides is right skewed.\nLog10 seems to be a better method to nomalise it.',
+  
+  #density 4
+  'Density is normaly distributed.',
+  
+  #fixed.acidity 5
+  'Fixed Acidity is right skewed.\nLog10 seems to be a better method to nomalise it.', 
+  
+  #free.sulfur.dioxide 6 
+  'Free Sulfur Dioxideis right skewed.\nSqrt seems to be a better method to nomalise it.', 
+  
+  #pH 7
+  'PH values is normaly distributed.', 
+  
+  #residual.sugar 8 
+  'Residual Sugar is right skewed.', 
+                      
+  #sulphates 9
+  'Sulphates is right skewed.\nLog10 seems to be a better method to nomalise it.',
+  
+  #volatile.acidity 10
+  'Volatile is right skewed.\nSqrt seems to be a better method to nomalise it.', 
+  
+  #total.sulfur.dioxide 11
+  'Free Sulfur Dioxide is right skewed.\nLog10 seems to be a better method to nomalise it.'
+)
+```
+
+
+
+## Univariate
 
 ### Histogram of All the Variables
 ```{r}
 # Show the histogram of all variables
 
 # Draw histograms
-df[, (2:13)] %>%  # Drop 1st column 
+df_s %>%  # Drop 1st column 
   as.tibble() %>%
   gather(variable, value) %>%
   ggplot( aes(x=value) ) +
@@ -484,13 +710,38 @@ table(df$quality)
 ```
 
 ```{r}
-ggplot(aes(x=quality, y = ..count..), data =df) +
-  geom_histogram(alpha = my_alpha, fill= my_color)+
-  scale_x_continuous(limits = c(0,10),
-                     breaks = seq(0, 10,1))
+# Ordinal Variable: use 'geom_bar()' instead of 'geom_histogram()'
+
+ggplot(df, aes(x=factor(quality))) + 
+  geom_bar(alpha = my_alpha, fill= my_color) +
+  labs(
+    x = 'Quality Ratings',
+    y = 'Count'
+  )
+  
 ```
 
 
+```{r}
+# Donut Plot args
+
+qlt_category <- c(3, 4, 5, 6, 7, 8) #6 categories
+
+qlt_count <- c(10, 53, 681, 638, 199, 18)
+
+qlt_color <- c(blue[[5]], red[[2]], blue[[1]], blue[[2]], blue[[3]], red[[1]]) #6 colors
+
+```
+
+
+```{r}
+# Draw donut plot
+
+create_doughnut(qlt_count, 
+              inner.radius=0.5, # inner.radius controls the width of the ring!
+              labels = qlt_category,
+              col=qlt_color )
+```
 
 ### Chemicals
 ```{r}
@@ -513,15 +764,17 @@ for (i in 1:11) {
   s <- summary(chemicals[[i]])
   
   # print markdown title: cat()
-  cat(paste(chemical_names[[i]], '\n'))
+  cat(paste(chemical_names[[i]], '\n\n\n'))
   print(s)
+  cat('\n\n')
+  cat(text_univar[[i]])
 }
 ```
 
 
 
 
-## Bivariate Plots
+## Bivariate - Quality vs Chemicals
 
 ### Plots: Quality vs Chemicals
 ```{r}
@@ -543,13 +796,10 @@ for (i in 1:11){
   step <- chemical_args[[i]][[3]]
   
   # step 2: draw plots
-  p1 <- create_scatter(c1, c_name, start, end, step, unit)
-  p2 <- create_ridgeline(c2, c_name, start, end, step)
-  p3 <- create_violin(c2, c_name, start, end, step)
+  draw_3_bivarite_plots(c1, c2, c_name, start, end, step, unit)
   
-  # step 3: print plots
-  print(p1)
-  grid.arrange(p2, p3, nrow = 1)
+  # step 3: add analysis
+  cat(text_bivar[[i]])
 }
 ```
 
@@ -622,17 +872,18 @@ cor_quality %>%
 
 
 
-## Multivariate Plots - Chemicals
+## Bivariate - Chemicals
 
-### Correlation Matrix
 ```{r results = 'hide'}
+
 # Compute 'Pearson' correlation between chemicals
+
 df_no_quality <- df[, (2:12)]
 r <- cor(df_no_quality)
 head(round(r,2))
 ```
 
-### Correlation
+### Correlation Matrix
 ```{r}
 # Build a Pannel of 100 colors with Rcolor Brewer
 r_colors <- brewer.pal(5, "RdBu")
@@ -643,6 +894,19 @@ ord <- order(r[1, ])
 r_ord = r[ord, ord]
 plotcorr(r_ord , col=r_colors[r_ord*50+50] , mar=c(1,1,1,1)  )
 ```
+
+From the correlation matrix, it could be seen that there some chemicals are highly correlated with others:
+
++ pH v.s Fixed Acidity
++ pH v.s. Citric Aciity
++ Citric Acid v.s. Fixed Acidity
++ Citric Acidity v.s. Volatile Acidity
++ Density v.s. Fixed Acidity
++ Free Sulfur Dioxide v.s. Total Sulfur Dioxide
+
+Besides, the three chemicals that are moderately correlated with quality - Alcohol, Volatile Acidity and Sulphates, are not correlate with each other.
+
+The correlation coefficient could be found in the following table.
 
 ### Pearson Correlation Coefficient between Chemicals
 ```{r results='hide'}
@@ -687,18 +951,16 @@ corrplot(r, method="color", col=col(1000),
 ### source: http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram
 ```
 
-The three chemicals that are moderately correlated with quality - Alcohol, Volatile Acidity and Sulphates, are not correlate with each other.
+Pearson Correlation Coefficient of Highly Correlated Chemicals:
 
-High Correlation:
++ pH v.s Fixed Acidity: -0.68
++ pH v.s. Citric Aciity: -0.54
++ Citric Acid v.s. Fixed Acidity: 0.67
++ Citric Acid v.s. Volatile Acidity: -0.55
++ Density v.s. Fixed Acidity: 0.67
++ Free Sulfur Dioxide v.s. Total Sulfur Dioxide:  0.67
 
-+ pH v.s Fixed Acidity
-+ pH v.s. Citric Aciity
-+ Citric Acid v.s. Fixed Acidity
-
-+ Citric Acidity v.s. Volatile Acidity
-+ Density v.s. Fixed Acidity
-
-+ Free Sulfur Dioxide v.s. Total Sulfur Dioxide
+The relationship between these chemicals are shown as follows.
 
 ### Moderately / Highly Correlated Chemicals
 ```{r}
@@ -707,18 +969,22 @@ scatterplotMatrix(~citric.acid +
                     density +
                     fixed.acidity + 
                     free.sulfur.dioxide + 
+                    pH +
                     total.sulfur.dioxide, 
                   data = df ,
-                  reg.line= FALSE,
-                  col= my_color , 
-                  pch= 20,
-                  cex=1.5,
-                  main="Scatter Plot of Correlated Chemicals" )
+                  reg.line = FALSE,
+                  col = my_color , 
+                  pch = 20,
+                  cex =1.5,
+                  main = "Scatter Plot of Correlated Chemicals" )
 
 ```
 
+## Multivariate - Chemicals
 
-### Plots: PH, Fixed Acidity & Density
+### PH, Fixed Acidity & Density
+From the correlation matrix, it is shown that PH, Fixed Acidity & Density are highly correlated with each other. Thus, the following plot is draw to present the relationship between them.
+
 ```{r results='hide'}
 ## Step 1: group df by fixed.acidity
 
@@ -746,25 +1012,27 @@ p_3 <- ggplot(aes(x = citric.acid, y = pH, color = fixed.acidity.group),
                                                 reverse = TRUE,
                                                 override.aes = list(alpha = 1, size = 2)))+
         scale_x_continuous()+
-        line_mean +
-        line_median+
         ggtitle('PH Values v.s.\n Citric Acid & Fixed Acidity')+ 
         xlab("Citric Acid (g / cm^3)") + 
         ylab("PH Value")+
-        my_theme
+        my_theme +
+        line_regression
+
 print(p_3)
 ```
+
+From the plot, we can easily see the trends:
 
 + Citric Acid and pH values are negatively correlated.
 
 + Fixed acidity and pH values are negatively correlated.
 
-+ Fixed acidity and density values are positively correlated.
++ Fixed acidity and Citric Acid are positively correlated.
 
 
 
 
-## Multivariate Plots - Quality v.s. Chemicals
+## Multivariate - Quality v.s. Chemicals
 
 3 chemicals are correlated with quality:
 
