@@ -37,7 +37,12 @@ The tidy data set contains 1,599 red wines [^1] with 11 variables on the chemica
 # {r echo=FALSE} Do not show this code block.
 
 # Avoid all codes and warnings to be shown in the HTML document
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+
+# knitr: Suppress code/messages/warnings 
+#        Set default plot options and center them
+knitr::opts_chunk$set(fig.width=9,fig.height=5,fig.path='Figs/',
+                      fig.align='center',tidy=TRUE,
+                      echo=FALSE,warning=FALSE,message=FALSE)
 ```
 
 ```{r}
