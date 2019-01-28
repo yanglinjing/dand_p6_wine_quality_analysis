@@ -610,75 +610,282 @@ function (x, labels = names(x),
 
 ```{r}
 text_bivar <- list(
-  #alcohol  1
-  'Alcohol and Quality are positively correlated.',
-  
-  #citric.acid 2
-  'Citric Acid and Quality are not correlated.',
-  
-  #chlorides 3
-  'Chlorides and Quality are not correlated.',
-  
-  #density 4
-  'Density and Quality are not correlated.',
-  
-  #fixed.acidity 5
-  'Fixed Acidity and Quality are not correlated.', 
-  
-  #free.sulfur.dioxide 6 
-  'Free Sulfur Dioxide and Quality are not correlated.', 
-  
-  #pH 7
-  'PH values and Quality are not correlated.', 
-  
-  #residual.sugar 8 
-  'Residual Sugar and Quality are not correlated.', 
-                      
-  #sulphates 9
-  'Sulphates and Quality are positively correlated.',
-  
-  #volatile.acidity 10
-  'Volatile Acidity and Quality are negatively correlated.', 
-  
-  #total.sulfur.dioxide 11
-  'Free Sulfur Dioxide and Quality are not correlated.'
+#alcohol  1
+'Alcohol and Quality
+
+From scatter plot, it can be seen that 
+when alcohol increases, the quality score rises.
+
+From the ridgeline and violine plot, it could be found that 
+when the quality score increases, 
+the alcohol distribution moves to the right (alcohol increases), 
+but the shapes are different to each other. 
+
+Thus, I guess even though they are positively correlated, 
+the correlation might not be strong.
+
+The spearman coefficient (0.48) shows that they are mild correlated, 
+same as what we got from the plots.
+',
+
+#citric.acid 2
+'Citric Acid and Quality
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when the citric acid increases.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 2 groups in the middle are almost same.
+
+Thus, I guess Citric Acid and Quality are not correlated.
+
+The spearman coefficient is 0.21 (not correlated),
+indicating a same result as what we got from the plots.
+',
+
+#chlorides 3
+'Chlorides and Quality
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when the cchlorides increase.
+
+In the ridgeline and violine plot,
+the x of the distributions just move to the left a bit,
+with the change of the quality groups.
+The shape of the 4 groups in the plots are very similar, 
+especially the 2 groups in the middle, which represents most of the wines.
+
+Thus, I guess chlorides and Quality are not correlated.
+
+The spearman coefficient is -0.19 (not correlated)indicating a same result as what we got from the plots.
+',
+
+#density 4
+'Density and Quality 
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when the density increase.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 4 groups in the plots are very similar, 
+especially the 2 groups in the middle, which represents most of the wines.
+
+Thus, I guess density and Quality are not correlated.
+
+The spearman coefficient is -0.18 (not correlated),
+indicating a same result as what we got from the plots.
+',
+
+#fixed.acidity 5
+'Fixed Acidity and Quality 
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when the fixed acidity increases.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 2 groups in the middle are almost same.
+
+Thus, I guess fixed acidity  and Quality are not correlated.
+
+The spearman coefficient is 0.11 (not correlated),
+indicating a same result as what we got from the plots.
+', 
+
+#free.sulfur.dioxide 6 
+'Free Sulfur Dioxide and Quality 
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when Free Sulfur Dioxide increase.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 4 groups in the plots are very similar.
+
+Thus, I guess Free Sulfur Dioxide and Quality are not correlated.
+
+The spearman coefficient is -0.057 (not correlated),
+indicating a same result as what we got from the plots.
+', 
+
+#pH 7
+'PH values and Quality
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when pH increase.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 4 groups in the plots are very similar.
+
+Thus, I guess pH and Quality are not correlated.
+
+The spearman coefficient is -0.044 (not correlated),
+indicating a same result as what we got from the plots.
+', 
+
+#residual.sugar 8 
+'Residual Sugar and Quality 
+
+From scatter plot, it can be seen that 
+the quality score does not have any changes,
+when Residual Sugar increase.
+
+In the ridgeline and violine plot,
+the x of the distributions does not move,
+with the change of the quality groups.
+The shape of the 3 groups at the top are very similar.
+
+Thus, I guess Residual Sugar and Quality are not correlated.
+
+The spearman coefficient is -0.031 (not correlated),
+indicating a same result as what we got from the plots.
+', 
+         
+         
+#sulphates 9
+'Sulphates and Quality
+
+From scatter plot, it can be seen that 
+when Sulphates < 0.9, the quality score rises as Sulphates increase. 
+When Sulphates > 0.9, the quality score drops as Sulphates increase. 
+
+From the ridgeline and violine plot, it could be found that 
+when the quality score increases, 
+the Sulphates distribution moves to the right (Sulphates increase).
+Besides, the shapes are similar to each other. 
+
+Thus, I guess even though they are positively correlated, 
+the correlation might not be strong.
+
+The spearman coefficient (0.39) shows that they are mild correlated.
+
+It might be a better way to use normalised Sulphates data, or discuss the relationship by grouping the Sulphates.
+',
+
+#volatile.acidity 10
+'Volatile Acidity and Quality
+
+From scatter plot, it can be seen that 
+the quality score decreases, when Volatile Acidity increase,
+but the trend is not obvious.
+
+In the ridgeline and violine plot,
+the x of the distributions moves to the left,
+with the change of the quality groups.
+The shape of the 4 groups are similar.
+
+Thus, I guess Residual Sugar and Quality are slightly negatively correlated.
+
+The spearman coefficient is -0.38 (weak negative correlation),
+indicating a same result as what we got from the plots.
+', 
+
+#total.sulfur.dioxide 11
+'Free Sulfur Dioxide and Quality
+
+From scatter plot, it can be seen that 
+the quality score does not change, when Volatile Acidity increase.
+
+In the ridgeline and violine plot,
+the x of the distributions moves to the left,
+with the change of the quality groups.
+The shape of the 4 groups are similar.
+
+Thus, I guess Free Sulfur Dioxide and Quality are not correlated.
+
+The spearman coefficient is -0.2 (not correlated),
+indicating a same result as what we got from the plots.
+'
 )
 ```
 
 ```{r}
 text_univar <- list(
   #alcohol  1
-  'Alcohol is right skewed.',
+  
+'The percentage of alcohol is between 8.40 and 14.90.\n
+It is rightly skewed, and most wines have 9% -12% alcohol,
+with the median of 10.20% and mean of 10.42%.\n
+I tried to normalise it by log10 or sqrt, but the distribution of them did not seem better.',
   
   #citric.acid 2
-  'Citric Acid is right skewed.',
   
-  #chlorides 3
-  'Chlorides is right skewed.\nLog10 seems to be a better method to nomalise it.',
+'Citric Acid ranges from 0 to 1 g / dm^3.\n
+There are 3 peaks in the distribution of Citric Acid with a long tail to the right.\n
+The 1st peak is between 0.0-0.1, with the 2nd in 0.2-0.3 and 3rd in 0.4-0.5.\n
+There is a sharp decrease betwenn 0.5 and 0.6. \n
+Most of wines have less than 0.5 g / dm^3 Citric Acid.\n
+Again, the log10 and sqrt method could not normalise it.',
   
-  #density 4
-  'Density is normaly distributed.',
-  
-  #fixed.acidity 5
-  'Fixed Acidity is right skewed.\nLog10 seems to be a better method to nomalise it.', 
-  
-  #free.sulfur.dioxide 6 
-  'Free Sulfur Dioxideis right skewed.\nSqrt seems to be a better method to nomalise it.', 
-  
-  #pH 7
-  'PH values is normaly distributed.', 
-  
-  #residual.sugar 8 
-  'Residual Sugar is right skewed.', 
-                      
-  #sulphates 9
-  'Sulphates is right skewed.\nLog10 seems to be a better method to nomalise it.',
-  
-  #volatile.acidity 10
-  'Volatile is right skewed.\nSqrt seems to be a better method to nomalise it.', 
-  
-  #total.sulfur.dioxide 11
-  'Free Sulfur Dioxide is right skewed.\nLog10 seems to be a better method to nomalise it.'
+#chlorides 3
+'The distribution of Chlorides is almost normal.\n
+Most wines have 0.04 - 0.12 g / dm^3 Chlorides, with the mean of 0.087.\n
+Though it ranges from 0.012 to 0.611,
+there are very few wines with the Chlorides of 0.012 - 0.04 or 0.12 - 0.611.',
+
+#density 4
+'Density is almost normaly distributed.\n
+Most wines have the density of 0.9956 - 0.9978 g / dm^3, 
+with the mean of 0.9967.',
+
+#fixed.acidity 5
+'Fixed Acidity is a bit rightly skewed.\n
+Though it ranges from 4.60 to 15.90 g / dm^3,
+most of wines have the fixed acidity of 5 -13, 
+with the median of 7.90. \n
+The mode is between 7 -8.\n
+Compared with sqrt, Log10 seems to be a better method to nomalise it.', 
+
+#free.sulfur.dioxide 6 
+'Free Sulfur Dioxide is right skewed with a long tail to the right.\n
+The peak of the distribution is between 6 - 11 mg/dm^3. \n
+Though it ranges from 1 - 72, 
+most wines have the Free Sulfur Dioxide less than 41.\n
+Sqrt could make it like a normal distribution than log10.', 
+
+#pH 7
+'PH values look like normally distributed. \n
+It mainly ranges from 3.0 to 3.6, with the mean of 3.311.', 
+
+#residual.sugar 8 
+'Residual Sugar has a long tail to the right.\n 
+Though it ranges from 0.9 to 15.5 g/dm^3,
+the sugar of most wines are less than 3.0.\n
+If we cut it from 3.0, the distribution less than 3.0 is almost normal.\n
+Log10 method is more suitable to normalise the Sulphates', 
+              
+#sulphates 9
+'Sulphates is right skewed.\n
+Though it ranges from 0.33 to 2.00 g/dm^3,
+the Sulphates of most wines are less than 1.0.\n
+From the histogram, it could be seen that
+there is another small peak between these two (near 0.5).\n
+Log10 method is more suitable to normalise the Sulphates',
+
+#volatile.acidity 10
+'Volatile is bimodal distributed, 
+with the 1st peak around 0.4 g/dm^3 and the 2nd near 0.6.\n
+Most wines have the acidity between 0.3 to 0.7.', 
+
+#total.sulfur.dioxide 11
+'Free Sulfur Dioxide is right skewed.\n
+Most wines have the Free Sulfur Dioxide less than 156 mg / dm^3, 
+with a few outliers reaching 289.\n
+Log10 could well nomalise it.'
 )
 ```
 
@@ -686,7 +893,14 @@ text_univar <- list(
 
 ## Univariate
 
+The main purpose of this report is to discover the chemicals that could predict the quality of wines. Besides, from the name of the 12 variables, we may find that some of them might be correlated with others (e.g. Acid and PH).
+
+Thus, the analysis would include the calculation of correlation and linear regression, both of which may requires a normal distribution of variables.
+
+In the univariate plots and analysis, it is focused on exploring the distribution of variables.
+
 ### Histogram of All the Variables
+There are 11 continuous variables and one ordinal variable. Most of them are skewed to right.
 ```{r}
 # Show the histogram of all variables
 
@@ -700,6 +914,7 @@ df_s %>%  # Drop 1st column
 ```
 
 ### Quality (Rating 0 - 10)
+Quality is the only ordinal variable in the data set. Though the range of it is 0-10, there is no wine ranked as 0-2 or 9-10. Most of the wines were scored as  5-6.
 
 ```{r}
 summary(df$quality)
@@ -809,7 +1024,9 @@ From the plots above, we can find that there are 3 chemicals correlated with qua
 + Sulphates: positive
 + Alcohol: positive
 
-### Spearman Correlation Coefficience: Quality vs Chemicals
+The following section summarises all of the Spearman Correlation Coefficients mentioned above.
+
+### Spearman Correlation Coefficient: Quality vs Chemicals
 ```{r}
 # Spearman Correlation: Quality vs Chemicals
 
@@ -866,13 +1083,15 @@ cor_quality %>%
   ylab("Spearman Correlation Coefficience with Quality")
 ```
 
-+ Alcohol, Volatile Acidity and Sulphates are moderately correlated with quality.
++ Alcohol, Volatile Acidity and Sulphates are correlated with quality.
 
 + Other chemicals are not correlated with quality.
 
 
 
 ## Bivariate - Chemicals
+After analysing the relationship between the quality score and chemicals,
+the relationship between 11 chemicals will be explored in this section.
 
 ```{r results = 'hide'}
 
@@ -904,9 +1123,10 @@ From the correlation matrix, it could be seen that there some chemicals are high
 + Density v.s. Fixed Acidity
 + Free Sulfur Dioxide v.s. Total Sulfur Dioxide
 
-Besides, the three chemicals that are moderately correlated with quality - Alcohol, Volatile Acidity and Sulphates, are not correlate with each other.
+Besides, the three chemicals that are correlated with quality
+- Alcohol, Volatile Acidity and Sulphates, are not correlate with each other.
 
-The correlation coefficient could be found in the following table.
+The Pearson correlation coefficients between chemicals is shown in the following table.
 
 ### Pearson Correlation Coefficient between Chemicals
 ```{r results='hide'}
@@ -960,7 +1180,7 @@ Pearson Correlation Coefficient of Highly Correlated Chemicals:
 + Density v.s. Fixed Acidity: 0.67
 + Free Sulfur Dioxide v.s. Total Sulfur Dioxide:  0.67
 
-The relationship between these chemicals are shown as follows.
+The relationship between these chemicals are shown in the following plots.
 
 ### Moderately / Highly Correlated Chemicals
 ```{r}
