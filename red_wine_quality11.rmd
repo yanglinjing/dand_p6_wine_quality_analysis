@@ -278,7 +278,7 @@ my_alpha <- 0.7
 # Set themes
 
 my_theme <- theme(
-                plot.title = element_text(size = 20),  
+                plot.title = element_text(size = 16),  
                 axis.title.x = element_text(size = 14),  
                 axis.title.y = element_text(size = 14),
                 
@@ -332,7 +332,7 @@ create_scatter <-
               y = "Quality"
            ) +
           line_regression +
-          line_mean +
+          #line_mean +
           text_cor
     return(p)
   }
@@ -355,7 +355,8 @@ create_scatter <-
 
 df$quality.group <-
   cut(df$quality,
-      c(3,4,5,6,8))
+      c(3,4,5,6,8),
+      labels = c('Low (3,4]', 'Medium Low (4,5]', 'Medium High (5,6]', 'High (6,8]'))
 
 table(df$quality.group,
       useNA = 'ifany')
@@ -612,6 +613,18 @@ function (x, labels = names(x),
 
 ```
 
+```{r}
+# Draw A Table: show info in table format
+
+create_table <- function(table_name){
+  
+  table_name %>% kable() %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+      full_width = F
+    )
+}
+```
 
 ```{r}
 text_bivar <- list(
@@ -962,9 +975,38 @@ create_doughnut(qlt_count,
               labels = qlt_category,
               col=qlt_color )
 ```
+```{r}
+# This chrunk of code is not used. I was tring to put the summary of chemicals into table format (create_table() function), so I can use {r results='asis'} to put the analysis into Markdown rather than output of R. But it only works outside of for loop. 
+# e.g. create_table(retrive_summary(3))
+
+# Build a data frame to store statistics of chemicals
+retrive_summary <- function(i){
+  # Build a new data frame
+  summary_c <- data.frame(matrix(nrow = 1, ncol = 7))
+  
+  # Name 7 columns of table
+  colnames(summary_c) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max.')
+  
+  # Store the summary into s
+  # Summary (6 rows):
+  # value = c(Min. = 8.4, `1st Qu.` = 9.5,...)
+  s <- summary(chemicals[[i]])
+  
+  # Store the chemical_name / statstics into the new df
+  for (j in 1:6) {
+    summary_c  [1, 1] <- chemical_names[[i]]
+    summary_c  [1, j+1] <- s[j]
+  }
+  
+  return(summary_c)
+}
+```
 
 ### Chemicals
 ```{r}
+# {r results='asis'}----The text in the body of the report is supposed to be in Markdown (and not printed as R output).
+# To achieve that, by adding the option results='asis' to the code chunk that prints (or cat()) your commentary:{r results='asis'}
+
 # Draw Univariate Plots (group of 4)
 for (i in 1:11) {
 
@@ -997,7 +1039,7 @@ for (i in 1:11) {
 ## Bivariate - Quality vs Chemicals
 
 ### Plots: Quality vs Chemicals
-```{r}
+```{r  results='asis'}
 # 3 kinds of plot to explore 
 # the relationship between a chemical and the quality
 
@@ -1056,11 +1098,7 @@ for (i in 1:11) {
 cor_table <- arrange(cor_quality, desc(abs(r)))
 
 # Print in table format
-cor_table %>% kable() %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-    full_width = F
-  )
+create_table(cor_table)
 
 ```
 
@@ -1215,7 +1253,12 @@ From the correlation matrix, it is shown that PH, Fixed Acidity & Density are hi
 
 # add a new variable for grouping
 df$fixed.acidity.group <-
-  cut(df$fixed.acidity, c(4.60, 7.10, 7.90, 9.20, 15.90))
+  cut(df$fixed.acidity, 
+      c(4.60, 7.10, 7.90, 9.20, 15.90),
+      labels =c('Low (4.6,7.1]', 
+                'Medium Low (7.1,7.9]', 
+                'Medium High (7.9, 9.2]', 
+                'High (9.2, 15.9]'))
 
 # check the new variable
 table(df$fixed.acidity.group, useNA = 'ifany')

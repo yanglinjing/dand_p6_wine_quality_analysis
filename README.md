@@ -30,6 +30,8 @@ The report is shown in both RMD and HTML documents.
 
 ![Sample Plot 3](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic3.png?raw=true)
 
+![Sample Plot 3-1](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic3-1.png?raw=true)
+
 ![Sample Plot 4](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic4.png?raw=true)
 
 ![Sample Plot 5](https://github.com/yanglinjing/dand_p6_wine_quality_analysis/blob/master/readme_pic/sample_pic5.png?raw=true)
