@@ -1,6 +1,8 @@
-# Wine Quality Analysis
-Which chemical properties influence the quality of red wines?
+# Wine Quality Analysis 
 (R Language)
+
+Which chemical properties influence the quality of red wines?
+
 
 ## Introduction
 In this project, I investigated a tidy data set which contains 1,599 records of red wines.
